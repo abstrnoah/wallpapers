@@ -1,7 +1,10 @@
 {
   description = "a collection of wallpapers";
 
-  inputs.dotfiles.url = "github:abstrnoah/dotfiles/ecd8de5c692066ac9018f9cd4b18295b14e027d8";
+  inputs.dotfiles = {
+    url = "github:abstrnoah/dotfiles/ecd8de5c692066ac9018f9cd4b18295b14e027d8";
+    inputs.wallpapers.follows = "";
+  };
 
   outputs =
     inputs@{ dotfiles, ... }:
