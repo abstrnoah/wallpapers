@@ -1,7 +1,7 @@
 {
   description = "a collection of wallpapers";
 
-  inputs.dotfiles.url = "github:abstrnoah/dotfiles/c801d944cd89bbf4b210891e1eb2c4e01761ecc3";
+  inputs.dotfiles.url = "github:abstrnoah/dotfiles/ecd8de5c692066ac9018f9cd4b18295b14e027d8";
 
   outputs =
     inputs@{ dotfiles, ... }:
@@ -10,7 +10,7 @@
         with dotfiles.lib.agnostic;
         let
           # Should support literally any system but yknow,,, flakes.
-          supported_systems = [ "x86_64-linux" "aarch64-linux" "armv7l-linux" ];
+          supported_systems = dotfiles.lib.agnostic.supported_systems;
           paths = list_dir ./wallpapers;
           path_to_name =
             path: builtins.replaceStrings [ "." ] [ "_" ] (baseNameOf path);
