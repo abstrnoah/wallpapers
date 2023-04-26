@@ -10,7 +10,7 @@
         with dotfiles.lib.agnostic;
         let
           # Should support literally any system but yknow,,, flakes.
-          supported_systems = [ "x86_64-linux" ];
+          supported_systems = [ "x86_64-linux" "aarch64-linux" "armv7l-linux" ];
           paths = list_dir ./wallpapers;
           path_to_name =
             path: builtins.replaceStrings [ "." ] [ "_" ] (baseNameOf path);
