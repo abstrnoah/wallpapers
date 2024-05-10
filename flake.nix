@@ -11,21 +11,27 @@
 
   outputs = inputs@{ dotfiles, flake-utils, ... }:
     let
-      cons = { metadata, store-symlink, bundle }:
+      cons = { metadata, store-symlink, store-symlinks }:
         let
           mimetype-to-extension = {
             "image/jpeg" = "jpg";
             "image/png" = "png";
           };
+          fullname = w@{ name, mimetype, ... }:
+            "wallpaper-${name}.${mimetype-to-extension.${mimetype}}";
+          # TODO Maybe just cp instead of symlink?
           cons-wallpaper = wallpaper-info@{ name, mimetype, src, ... }:
-            let extension = mimetype-to-extension.${mimetype};
-            in (store-symlink "wallpaper-${name}.${extension}" src
-              "").overrideAttrs (prev: {
-                passthru = prev.passthru or { } // { inherit wallpaper-info; };
-              });
-          default = bundle {
+            let out = fullname wallpaper-info;
+            in (store-symlink out src "").overrideAttrs (prev: {
+              passthru = prev.passthru or { } // { inherit wallpaper-info; };
+            });
+          default = store-symlinks {
             name = "wallpapers";
-            inherit packages;
+            mapping = map (w: {
+              source = w.src;
+              destination = "/${fullname w}";
+            }) (builtins.attrValues metadata);
+
           };
           packages = builtins.mapAttrs (_: cons-wallpaper) metadata;
         in {
@@ -34,7 +40,7 @@
         };
     in flake-utils.lib.eachDefaultSystem (system:
       cons {
-        inherit (dotfiles.config.${system}) store-symlink bundle;
+        inherit (dotfiles.config.${system}) store-symlink store-symlinks;
         metadata = import ./.;
       });
 
