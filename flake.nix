@@ -1,31 +1,41 @@
 {
-  description = "a collection of wallpapers";
 
-  inputs.dotfiles = {
-    url = "github:abstrnoah/dotfiles/ecd8de5c692066ac9018f9cd4b18295b14e027d8";
-    inputs.wallpapers.follows = "";
-  };
+  description = "A collection of wallpapers";
 
-  outputs =
-    inputs@{ dotfiles, ... }:
-    {
-      packages =
-        with dotfiles.lib.agnostic;
+  inputs.dotfiles.url = "github:abstrnoah/dotfiles";
+  inputs.dotfiles.inputs.wallpapers.follows = "";
+
+  inputs.systems.follows = "dotfiles/systems";
+
+  inputs.flake-utils.follows = "dotfiles/flake-utils";
+
+  outputs = inputs@{ dotfiles, flake-utils, ... }:
+    let
+      cons = { metadata, store-symlink, bundle }:
         let
-          # Should support literally any system but yknow,,, flakes.
-          supported_systems = dotfiles.lib.agnostic.supported_systems;
-          paths = list_dir ./wallpapers;
-          path_to_name =
-            path: builtins.replaceStrings [ "." ] [ "_" ] (baseNameOf path);
-        in
-        for_all supported_systems
-        (system:
-        builtins.listToAttrs
-        (map
-        (path: {
-          name = path_to_name path;
-          value = dotfiles.lib.${system}.store_file (./wallpapers + "/${path}") "";
-        })
-        paths));
-    };
+          mimetype-to-extension = {
+            "image/jpeg" = "jpg";
+            "image/png" = "png";
+          };
+          cons-wallpaper = wallpaper-info@{ name, mimetype, src, ... }:
+            let extension = mimetype-to-extension.${mimetype};
+            in (store-symlink "wallpaper-${name}.${extension}" src
+              "").overrideAttrs (prev: {
+                passthru = prev.passthru or { } // { inherit wallpaper-info; };
+              });
+          default = bundle {
+            name = "wallpapers";
+            inherit packages;
+          };
+          packages = builtins.mapAttrs (_: cons-wallpaper) metadata;
+        in {
+          packages = packages // { inherit default; };
+          inherit metadata;
+        };
+    in flake-utils.lib.eachDefaultSystem (system:
+      cons {
+        inherit (dotfiles.config.${system}) store-symlink bundle;
+        metadata = import ./.;
+      });
+
 }
