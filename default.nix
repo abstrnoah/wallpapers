@@ -39,7 +39,8 @@ in builtins.mapAttrs (_: cons-metadata) {
   pixel-city-at-night-png = {
     name = "pixel-city-at-night";
     artist = "https://www.deviantart.com/fiekechu";
-    origin = "https://www.deviantart.com/fiekechu/art/pixel-city-at-night-616075206";
+    origin =
+      "https://www.deviantart.com/fiekechu/art/pixel-city-at-night-616075206";
     mimetype = "image/png";
     sha256 = "8e08661195b1bf2cac571ce2a5e3c51a3ffa4dc97bade790284f2cea334a8cf8";
   };

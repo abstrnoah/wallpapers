@@ -31,7 +31,6 @@
               source = w.src;
               destination = "/${fullname w}";
             }) (builtins.attrValues metadata);
-
           };
           packages = builtins.mapAttrs (_: cons-wallpaper) metadata;
         in {
